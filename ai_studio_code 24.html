@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>alaska livery tracker</title>
+    <style>
+        :root {
+            /* --- HERO CALIBRATION --- */
+            --plane-zoom: 110%;      
+            --plane-nudge-x: 90%;    
+            --text-nudge-x: 275px;   
+            --text-up-down: -10px;   
+
+            --alaska-blue: #00426a;
+            --alaska-green: #509e2f;
+            --retired-gray: #64748b;
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --header-bg: #ffffff;
+            --tooltip-bg: #222;
+            --footer-tint: rgba(0, 66, 106, 0.7);
+        }
+
+        body.dark-mode {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border: #334155;
+            --header-bg: #1e293b;
+            --accent: #60a5fa;
+            --tooltip-bg: #475569;
+            --footer-tint: rgba(15, 23, 42, 0.9);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            font-family: "Avenir Next", "Avenir", -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh; width: 100%;
+            background-image: url('image/hero_plane.jpeg');
+            background-size: var(--plane-zoom);
+            background-position: var(--plane-nudge-x) center;
+            background-repeat: no-repeat;
+            background-color: white;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
+        }
+
+        .hero-title-wrap {
+            display: flex; align-items: center; justify-content: center;
+            transform: translateY(var(--text-up-down));
+        }
+
+        .livery-text {
+            color: var(--alaska-blue);
+            font-size: clamp(2.5rem, 8vw, 5.0rem); 
+            font-weight: 900; font-style: italic;
+            letter-spacing: -4px;
+            transform: translateX(var(--text-nudge-x));
+            white-space: nowrap;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+            pointer-events: none;
+        }
+
+        .hero-sub {
+            position: absolute; bottom: 15%; background: var(--alaska-blue); color: white;
+            padding: 16px 40px; border-radius: 50px; font-weight: bold;
+            text-transform: uppercase; text-decoration: none; transition: transform 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 10;
+        }
+
+        /* --- HEADER & NAV --- */
+        header {
+            background: var(--header-bg); border-bottom: 1px solid var(--border);
+            padding: 0 40px; height: 80px; display: flex; align-items: center;
+            justify-content: space-between; position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo { font-weight: 900; font-size: 1.4rem; color: var(--alaska-blue); text-transform: lowercase; }
+        body.dark-mode .logo { color: white; }
+
+        nav { display: flex; gap: 30px; }
+        .nav-link { text-decoration: none; color: var(--text-sub); font-weight: 600; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+        .nav-link.active { color: var(--alaska-blue); }
+
+        /* --- TOOLBAR --- */
+        .page-header-area {
+            max-width: 1400px; margin: 40px auto 20px; padding: 0 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .controls-left { display: flex; gap: 15px; }
+        .controls-left select {
+            padding: 14px 20px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--bg-card); color: var(--text-main); font-weight: 600; font-size: 1.1rem;
+        }
+
+        .view-emblems { display: flex; gap: 10px; padding: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+        .emblem { width: 35px; height: 35px; cursor: pointer; opacity: 0.2; color: var(--text-main); transition: opacity 0.2s; }
+        .emblem.active { opacity: 1; color: var(--alaska-blue); }
+
+        /* --- GRID VIEW (3 ACROSS) --- */
+        .view-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 40px; width: 100%;
+        }
+
+        .card { 
+            background: var(--bg-card); border-radius: 24px; overflow: hidden; 
+            border: 1px solid var(--border); display: flex; flex-direction: column; 
+            height: 100%; position: relative;
+        }
+        
+        /* Retired Grayscale Tint */
+        .card.retired { filter: grayscale(0.85); opacity: 0.8; }
+        
+        .view-grid .card-img { width: 100%; height: 240px; flex-shrink: 0; }
+        .view-grid .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        .view-grid .card-content { padding: 40px; flex-grow: 1; display: flex; flex-direction: column; }
+        .view-grid h3 { margin-bottom: 25px; font-size: 1.25rem; font-weight: 800; }
+        .view-grid .info-wrapper { margin-bottom: 50px; } 
+        .view-grid .controls { margin-top: auto; display: flex; gap: 10px; } 
+
+        /* --- LIST VIEW FIXED SINGLE LINE --- */
+        .view-list { display: flex; flex-direction: column; gap: 15px; }
+        .view-list .card { 
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            height: 120px; 
+            align-items: center;
+        }
+        .view-list .card-img { width: 220px; height: 100%; }
+        .view-list .card-img img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .view-list .card-content { 
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            height: 100%;
+        }
+        .view-list .title-wrapper { width: 30%; white-space: nowrap; }
+        .view-list .title-wrapper h3 { margin: 0; font-size: 1.1rem; }
+        .view-list .info-wrapper { width: 35%; display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0; }
+        .view-list .controls { width: 250px; display: flex; gap: 10px; justify-content: flex-end; }
+
+        /* --- UI ELEMENTS --- */
+        .info { font-size: 1rem; color: var(--text-sub); white-space: nowrap; }
+        .reg { font-family: monospace; font-weight: bold; background: #f1f5f9; padding: 6px 12px; border-radius: 6px; text-decoration: none; color: var(--alaska-blue); border: 1px solid #cbd5e1; }
+        body.dark-mode .reg { background: #334155; color: #60a5fa; border-color: #475569; }
+
+        .btn { border: 2px solid #e2e8f0; padding: 14px 22px; border-radius: 10px; background: var(--bg-card); color: var(--text-main); font-size: 0.85rem; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: 0.2s; white-space: nowrap; }
+        .btn.active-seen { background: var(--alaska-blue); color: white; border-color: var(--alaska-blue); }
+        .btn.active-ridden { background: var(--alaska-green); color: white; border-color: var(--alaska-green); }
+
+        /* --- DARK MODE SPINNER (SCROLL TRIGGERED) --- */
+        .dark-mode-fab { 
+            position: fixed; bottom: 40px; right: 40px; background: var(--bg-card); border: 1px solid var(--border); 
+            width: 75px; height: 75px; border-radius: 50%; cursor: pointer; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15); z-index: 2000;
+            display: flex; align-items: center; justify-content: center; font-size: 2.2rem;
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s;
+            opacity: 0; visibility: hidden;
+        }
+        .dark-mode-fab.visible { opacity: 1; visibility: visible; }
+        .dark-mode-fab.rotated { transform: rotate(180deg); }
+
+        /* --- ANALYTICS DASHBOARD --- */
+        .analytics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; margin-top: 30px; }
+        .analytics-card { background: var(--bg-card); padding: 50px; border-radius: 30px; border: 1px solid var(--border); }
+        .progress-label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 15px; font-size: 1.1rem; }
+        .bar-bg { background: var(--bg-body); height: 16px; border-radius: 15px; overflow: hidden; margin-bottom: 30px; }
+        .bar-fill { height: 100%; background: var(--alaska-green); width: 0%; transition: width 1.5s cubic-bezier(0.1, 0, 0, 1); }
+
+        .badges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .badge-item { background: var(--bg-body); padding: 25px; border-radius: 20px; text-align: center; border: 1px solid var(--border); opacity: 0.15; transition: 0.5s; }
+        .badge-item.unlocked { opacity: 1; border-color: var(--alaska-green); background: var(--bg-card); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+        .type-pill { padding: 8px 16px; background: var(--bg-body); border-radius: 50px; border: 1px solid var(--border); font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+
+        /* --- FOOTER --- */
+        .parallax-footer {
+            height: 60vh; background-image: url('image/footer.jpeg');
+            background-attachment: fixed; background-position: center; background-size: cover;
+            display: flex; align-items: center; justify-content: center; position: relative;
+            background-color: var(--bg-body);
+        }
+        .footer-overlay { background: var(--footer-tint); position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: background 0.4s; }
+        .footer-content { position: relative; z-index: 2; text-align: center; color: white; max-width: 800px; padding: 20px; }
+
+        /* --- TOOLTIP --- */
+        .tooltip { position: relative; display: inline-block; }
+        .tooltip .tooltiptext { visibility: hidden; width: 320px; background-color: var(--tooltip-bg); color: #fff; text-align: center; border-radius: 12px; padding: 18px; position: absolute; z-index: 10; bottom: 150%; left: 50%; margin-left: -160px; opacity: 0; transition: 0.3s; font-size: 0.85rem; pointer-events: none; line-height: 1.4; box-shadow: 0 10px 20px rgba(0,0,0,0.3); font-weight: normal; }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+        .page-section { display: none; max-width: 1500px; margin: 0 auto 100px; padding: 0 20px; }
+        .page-section.active { display: block; }
+        .group-header { font-size: 1.6rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 2px; margin: 70px 0 40px; border-bottom: 2px solid var(--border); padding-bottom: 15px; }
+
+        @media (max-width: 1200px) { 
+            .view-grid { grid-template-columns: repeat(2, 1fr); } 
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <div class="hero-title-wrap">
+        <span class="livery-text">Livery Tracker</span>
+    </div>
+    <a href="#main" class="hero-sub" onclick="switchPage('fleet', document.querySelector('.nav-link'))">Open Logbook</a>
+</div>
+
+<header id="main">
+    <div class="logo">alaska livery tracker</div>
+    <nav>
+        <a class="nav-link active" onclick="switchPage('fleet', this)">Fleet</a>
+        <a class="nav-link" onclick="switchPage('analytics', this)">Analytics</a>
+        <a class="nav-link" onclick="switchPage('info', this)">Information</a>
+    </nav>
+</header>
+
+<div id="page-fleet" class="page-section active">
+    <div class="page-header-area">
+        <div class="controls-left">
+            <select id="groupBy" onchange="renderFleet()">
+                <option value="status" selected>Status (Active/Retired)</option>
+                <option value="cat">Livery Category</option>
+                <option value="type">Aircraft Type</option>
+            </select>
+        </div>
+        
+        <div class="view-emblems">
+            <div id="emblem-grid" class="emblem active" onclick="setView('grid')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
+            </div>
+            <div id="emblem-list" class="emblem" onclick="setView('list')">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/></svg>
+            </div>
+        </div>
+    </div>
+    <div id="fleet-container"></div>
+</div>
+
+<div id="page-analytics" class="page-section">
+    <div class="analytics-grid">
+        <div class="analytics-card">
+            <h3>Completion Statistics</h3>
+            <div class="progress-container">
+                <div class="progress-label"><span>Total spotted</span><span id="perc-total">0%</span></div>
+                <div class="bar-bg"><div id="bar-total" class="bar-fill"></div></div>
+            </div>
+            <div class="progress-container">
+                <div class="progress-label"><span>Disney collection</span><span id="perc-disney">0%</span></div>
+                <div class="bar-bg"><div id="bar-disney" class="bar-fill" style="background:var(--alaska-blue)"></div></div>
+            </div>
+        </div>
+        <div class="analytics-card">
+            <h3>Achievements</h3>
+            <div class="badges-grid" id="badges-grid"></div>
+        </div>
+    </div>
+    <div class="analytics-card" style="margin-top:30px">
+        <h3>Aircraft Type Breakdown</h3>
+        <div id="type-breakdown" style="display:flex; gap:12px; flex-wrap:wrap;"></div>
+    </div>
+</div>
+
+<div id="page-info" class="page-section">
+    <div style="max-width: 900px; margin: 40px auto; line-height: 2;">
+        <h2 class="group-header">Our Story</h2>
+        <p>This application documents the artistic heritage of Alaska Airlines. From the iconic Salmon-Thirty-Salmon to collaborations with Disney and local sports teams, we track the individual frames that make this fleet unique.</p>
+        
+        <h2 class="group-header">Contact</h2>
+        <p>Find an error or a missing tail number? Contact the curator at: <strong>spotter@example.com</strong></p>
+    </div>
+</div>
+
+<div class="parallax-footer">
+    <div class="footer-overlay"></div>
+    <div class="footer-content">
+        <h2 style="text-transform: lowercase; font-size: 3rem;">alaska livery tracker</h2>
+    </div>
+</div>
+
+<div id="darkModeBtn" class="dark-mode-fab" onclick="toggleDarkMode()">☀️</div>
+
+<script>
+    let currentView = 'grid';
+    let isDarkMode = localStorage.getItem('ak_v23_dm') === 'true';
+
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkModeBtn').innerText = "🌙";
+        document.getElementById('darkModeBtn').classList.add('rotated');
+    }
+
+    window.addEventListener('scroll', () => {
+        const fab = document.getElementById('darkModeBtn');
+        fab.classList.toggle('visible', window.scrollY > window.innerHeight * 0.5);
+    });
+
+    const aircraftData = [
+        // ACTIVE
+        { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N538AS", name: "Star Wars Transport to Disneyland Resort", img: "image/starwars.jpeg" },
+        { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N537AS", name: "Disneyland Pixar Pier", img: "image/pixar.jpeg" },
+        { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N565AS", name: "Mickey's Toontown at Disneyland Resort", img: "image/toontown.jpeg" },
+        { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N589AS", name: "Toy Story: Friendship and Beyond", img: "image/toystory.jpeg" },
+        { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N596AS", name: "Tiana's Bayou Adventure Flyer", img: "image/tiana.jpeg" },
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N559AS", name: "X̱áat Ḵwáani (Salmon People)", img: "image/kwaani.jpeg" },
+        { cat: "Military", status: "active", type: "Boeing 737-8 MAX", tail: "N806AK", name: "Honoring Those Who Serve (2024)", img: "image/veterans.jpeg" },
+        { cat: "Community", status: "active", type: "Boeing 737-800", tail: "N568AS", name: "Employee Powered", img: "image/employees.jpeg" },
+        { cat: "Retro", status: "active", type: "Boeing 737-800", tail: "N569AS", name: "Starliner 75 Retrojet", img: "image/retro.jpeg" },
+        { cat: "Military", status: "active", type: "Boeing 737-800", tail: "N523AS", name: "Honoring Those Who Serve", img: "image/honor.jpeg" },
+        { cat: "Military", status: "active", type: "Boeing 737-900ER", tail: "N265AK", name: "Honoring Those Who Serve", img: "image/honor.jpeg" },
+        { cat: "Military", status: "active", type: "Embraer 175", tail: "N651QX", name: "Honoring Those Who Serve", img: "image/tribute.jpeg" },
+        { cat: "Military", status: "active", type: "Boeing 737-9 MAX", tail: "N929AK", name: "Honoring Those Who Serve", img: "image/honor.jpeg" },
+        { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N710AL", name: "Seattle Mariners", img: "image/mariners.jpeg" },
+        { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N915AK", name: "Seattle Kraken", img: "image/kraken.jpeg" },
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-9 MAX", tail: "N932AK", name: "West Coast Wonders (Orcas)", img: "image/orca.jpeg" },
+        { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N933AK", name: "Seattle Kraken", img: "image/hockey.jpeg" },
+        { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N936AK", name: "Lou Seal / SF Giants", img: "image/louseal.jpeg" },
+        { cat: "Alliance", status: "active", type: "Boeing 737-900ER", tail: "N486AS", name: "oneworld Alliance", img: "image/oneworld.jpeg" },
+        { cat: "Alliance", status: "active", type: "Boeing 737-900ER", tail: "N491AS", name: "oneworld Alliance", img: "image/alliance.jpeg" },
+        { cat: "Community", status: "active", type: "Boeing 737-900ER", tail: "N492AS", name: "UNCF Our Commitment", img: "image/uncf.jpeg" },
+        { cat: "University", status: "active", type: "Embraer 175", tail: "N661QX", name: "WSU Go Cougs", img: "image/veterans.jpeg" },
+        { cat: "University", status: "active", type: "Embraer 175", tail: "N662QX", name: "UW Go Dawgs", img: "image/veterans.jpeg" },
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N562AS", name: "Hawaiian Lei Tail", img: "image/lei.jpeg" },
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N584AS", name: "Hawaiian Lei Tail", img: "image/aloha.jpeg" },
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N592AS", name: "Hawaiian Lei Tail", img: "image/garland.jpeg" },
+
+        // RETIRED
+        { cat: "Community", status: "retired", type: "Airbus A320", tail: "N854VA", name: "Pride in the Skies", img: "image/pride.jpeg" },
+        { cat: "Sports", status: "retired", type: "Airbus A321", tail: "N924VA", name: "SF Giants Logojet", img: "image/giants.jpeg" },
+        { cat: "Alliance", status: "retired", type: "Airbus A321", tail: "N926VA", name: "More to Love", img: "image/love.jpeg" },
+        { cat: "Alliance", status: "retired", type: "Airbus A321", tail: "N927VA", name: "More to Love", img: "image/merger.jpeg" },
+        { cat: "Retro", status: "retired", type: "Boeing 737-800", tail: "N512AS", name: "Spirit of Seattle / Dreamliner", img: "image/dreamliner.jpeg" },
+        { cat: "Disney", status: "retired", type: "Boeing 737-800", tail: "N519AS", name: "Incredibles 2", img: "image/incredibles.jpeg" },
+        { cat: "Community", status: "retired", type: "Boeing 737-800", tail: "N548AS", name: "Fly & Ski Snowbird", img: "image/skiing.jpeg" },
+        { cat: "Art & Culture", status: "retired", type: "Boeing 737-800", tail: "N559AS", name: "Salmon Thirty Salmon II", img: "image/salmon.jpeg" },
+        { cat: "Art & Culture", status: "retired", type: "Boeing 737-800", tail: "N560AS", name: "Spirit of the Islands", img: "image/islands.jpeg" },
+        { cat: "Disney", status: "retired", type: "Boeing 737-800", tail: "N570AS", name: "Disneyland Cars Land", img: "image/cars.jpeg" },
+        { cat: "Community", status: "retired", type: "Boeing 737-9 MAX", tail: "N913AK", name: "The Gift of Travel (Holiday)", img: "image/holiday.jpeg" },
+        { cat: "Retro", status: "retired", type: "Boeing 737-900ER", tail: "N248AK", name: "Boeing 100 Years Strong", img: "image/boeing.jpeg" },
+        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N280AK", name: "Kevin Durant photo", img: "image/durant.jpeg" },
+        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N296AK", name: "Russell Wilson CFO", img: "image/wilson.jpeg" },
+        { cat: "Disney", status: "retired", type: "Boeing 737-900", tail: "N318AS", name: "We're Going to Disneyland Resort", img: "image/disneyland.jpeg" },
+        { cat: "Community", status: "retired", type: "Boeing 737-900ER", tail: "N403AS", name: "Spirit of Education", img: "image/education.jpeg" },
+        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N453AS", name: "Russell Wilson Champions", img: "image/champions.jpeg" },
+        { cat: "Alliance", status: "retired", type: "Boeing 737-900ER", tail: "N493AS", name: "More to Love (Virgin America)", img: "image/virgin.jpeg" }
+    ];
+
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('dark-mode');
+        const btn = document.getElementById('darkModeBtn');
+        btn.classList.toggle('rotated');
+        btn.innerHTML = isDarkMode ? `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>` : `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+        localStorage.setItem('ak_v23_dm', isDarkMode);
+    }
+
+    function switchPage(page, el) {
+        document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(`page-${page}`).classList.add('active');
+        if (el) el.classList.add('active');
+        if (page === 'fleet') renderFleet();
+        if (page === 'analytics') renderAnalytics();
+    }
+
+    function setView(view) {
+        currentView = view;
+        document.getElementById('emblem-grid').classList.toggle('active', view === 'grid');
+        document.getElementById('emblem-list').classList.toggle('active', view === 'list');
+        renderFleet();
+    }
+
+    function toggleAction(tail, name, type) {
+        const key = `ak_v23_${tail}_${name}`;
+        let data = JSON.parse(localStorage.getItem(key) || '{"s":false,"r":false}');
+        data[type] = !data[type];
+        localStorage.setItem(key, JSON.stringify(data));
+        renderFleet();
+    }
+
+    function renderFleet() {
+        const container = document.getElementById('fleet-container');
+        const groupKey = document.getElementById('groupBy').value;
+        container.innerHTML = '';
+
+        let groups = {};
+        aircraftData.forEach(p => {
+            let k = p[groupKey];
+            if (groupKey === 'status') k = p.status === 'active' ? 'Active Fleet' : 'Retired Vault';
+            if (!groups[k]) groups[k] = [];
+            groups[k].push(p);
+        });
+
+        const keys = Object.keys(groups);
+        if (groupKey === 'status') keys.sort((a,b) => a === 'Active Fleet' ? -1 : 1);
+
+        keys.forEach(title => {
+            const wrap = document.createElement('div');
+            wrap.innerHTML = `<h2 class="group-header">${title}</h2>`;
+            const inner = document.createElement('div');
+            inner.className = `view-${currentView}`;
+
+            groups[title].forEach(p => {
+                const data = JSON.parse(localStorage.getItem(`ak_v23_${p.tail}_${p.name}`) || '{"s":false,"r":false}');
+                const card = document.createElement('div');
+                card.className = `card ${p.status === 'retired' ? 'retired' : ''}`;
+                card.innerHTML = `
+                    <div class="card-img"><img src="${p.img}" onerror="this.parentElement.style.background='#cbd5e1'"></div>
+                    <div class="card-content">
+                        <div class="title-wrapper"><h3>${p.name}</h3></div>
+                        <div class="info-wrapper">
+                            <div class="info">${p.type} • 
+                                <div class="tooltip">
+                                    <a href="https://www.flightradar24.com/data/aircraft/${p.tail.toLowerCase()}" target="_blank" class="reg">${p.tail}</a>
+                                    <span class="tooltiptext"><strong>Track This Aircraft!</strong><br>Note: If map is centered on Jordan, the plane is currently parked or off-radar. Recent flight history available on left.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="controls">
+                            <button class="btn ${data.s ? 'active-seen' : ''}" onclick="toggleAction('${p.tail}', '${p.name}', 's')">Seen</button>
+                            <button class="btn ${data.r ? 'active-ridden' : ''}" onclick="toggleAction('${p.tail}', '${p.name}', 'r')">Ridden</button>
+                        </div>
+                    </div>
+                `;
+                inner.appendChild(card);
+            });
+            wrap.appendChild(inner);
+            container.appendChild(wrap);
+        });
+    }
+
+    function renderAnalytics() {
+        let total = aircraftData.length, seen = 0, dTotal = 0, dSeen = 0;
+        let types = {};
+
+        aircraftData.forEach(p => {
+            const data = JSON.parse(localStorage.getItem(`ak_v23_${p.tail}_${p.name}`) || '{"s":false}');
+            if (data.s) seen++;
+            if (p.cat === 'Disney') { dTotal++; if (data.s) dSeen++; }
+            types[p.type] = (types[p.type] || 0) + (data.s ? 1 : 0);
+        });
+
+        document.getElementById('perc-total').innerText = Math.round(seen/total*100) + '%';
+        document.getElementById('bar-total').style.width = (seen/total*100) + '%';
+        document.getElementById('perc-disney').innerText = Math.round(dSeen/dTotal*100) + '%';
+        document.getElementById('bar-disney').style.width = (dSeen/dTotal*100) + '%';
+
+        const achs = [
+            { n: 'Spotter One', u: seen >= 1 },
+            { n: 'Disney Expert', u: dSeen === dTotal && dTotal > 0 },
+            { n: 'Aviation Historian', u: aircraftData.some(p => p.status === 'retired' && JSON.parse(localStorage.getItem(`ak_v23_${p.tail}_${p.name}`) || '{"s":false}').s) },
+            { n: 'Fleet Collector', u: seen >= 15 },
+            { n: 'Elite Tracker', u: seen >= 30 }
+        ];
+
+        document.getElementById('badges-grid').innerHTML = achs.map(a => `
+            <div class="badge-item ${a.u ? 'unlocked' : ''}">
+                <div style="font-weight:800; font-size:0.9rem">${a.n}</div>
+            </div>
+        `).join('');
+
+        document.getElementById('type-breakdown').innerHTML = Object.entries(types).map(([t, c]) => `
+            <div class="type-pill">
+                <strong>${t}:</strong> ${c} spotted
+            </div>
+        `).join('');
+    }
+
+    renderFleet();
+</script>
+</body>
+</html>
