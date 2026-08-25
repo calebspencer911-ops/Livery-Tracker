@@ -33,18 +33,20 @@
 
     <title>Alaska Livery Tracker | Fleet Logbook & Spotter Guide</title>
     
-    <!-- Google Fonts Preconnect & Inter/Outfit Font -->
+    <!-- Google Fonts Preconnect & Inter/Outfit/Caveat/Reenie Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sedgwick+Ave+Display&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* --- HERO FUSELAGE CALIBRATION (Google Studio Specs) --- */
+            /* --- HERO PLANE & TITLE CALIBRATION --- */
             --plane-zoom: 110%;      
             --plane-nudge-x: 90%;    
-            --text-nudge-x: 275px;   
-            --text-up-down: -10px;   
+            
+            /* Alignment to white fuselage right next to "Alaska" wordmark */
+            --title-nudge-x: 235px;   
+            --title-nudge-y: -18px;   
 
             /* --- BRAND PALETTE --- */
             --alaska-blue: #00426a;
@@ -145,7 +147,7 @@
             outline-offset: 2px;
         }
 
-        /* --- HERO SECTION (CALIBRATED TO FUSELAGE) --- */
+        /* --- HERO SECTION --- */
         .hero {
             height: 100vh;
             width: 100%;
@@ -174,66 +176,139 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 120px;
+            height: 140px;
             background: linear-gradient(180deg, transparent 0%, var(--bg-body) 100%);
             pointer-events: none;
         }
 
+        /* --- BESPOKE "LIVERY TRACKER" BRUSH SCRIPT WORDMARK --- */
         .hero-title-wrap {
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: translateY(var(--text-up-down));
+            transform: translate(var(--title-nudge-x), var(--title-nudge-y));
             pointer-events: none;
             z-index: 2;
+            user-select: none;
         }
 
-        .livery-text {
-            color: var(--alaska-blue);
-            font-size: clamp(2.6rem, 7.5vw, 5.2rem); 
+        .alaska-brush-wordmark {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            transform: skewX(-14deg) rotate(-1deg);
+            filter: drop-shadow(1.5px 1.5px 0px rgba(255,255,255,0.95)) drop-shadow(0 4px 12px rgba(0, 66, 106, 0.18));
+        }
+
+        body.dark-mode .alaska-brush-wordmark {
+            filter: drop-shadow(1.5px 1.5px 0px rgba(11, 19, 41, 0.95)) drop-shadow(0 0 20px rgba(56, 189, 248, 0.45));
+        }
+
+        .brand-script-text {
+            font-family: "Outfit", "Segoe UI", sans-serif;
+            font-size: clamp(2.4rem, 6.2vw, 4.4rem);
             font-weight: 900;
             font-style: italic;
-            letter-spacing: -3px;
-            transform: translateX(var(--text-nudge-x));
+            letter-spacing: -2.5px;
+            line-height: 0.92;
+            color: var(--alaska-blue);
             white-space: nowrap;
-            text-shadow: 2px 2px 0px rgba(255,255,255,0.9), 0 4px 15px rgba(0, 66, 106, 0.15);
-            pointer-events: none;
-            font-family: 'Outfit', sans-serif;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
         }
 
-        body.dark-mode .livery-text {
+        body.dark-mode .brand-script-text {
             color: #38bdf8;
-            text-shadow: 2px 2px 0px rgba(11, 19, 41, 0.9), 0 0 25px rgba(56, 189, 248, 0.4);
         }
 
-        .hero-sub {
-            position: absolute;
-            bottom: 14%;
-            background: linear-gradient(135deg, var(--alaska-blue) 0%, var(--alaska-blue-dark) 100%);
-            color: #ffffff;
-            padding: 16px 42px;
-            border-radius: 50px;
+        .brand-script-text .word-livery {
+            position: relative;
+            text-transform: capitalize;
+        }
+
+        .brand-script-text .word-tracker {
+            position: relative;
+            text-transform: capitalize;
+            color: var(--alaska-blue);
+        }
+
+        body.dark-mode .brand-script-text .word-tracker {
+            color: #38bdf8;
+        }
+
+        .brand-script-tagline {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(0.72rem, 1.4vw, 0.92rem);
             font-weight: 800;
-            font-size: 1rem;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            text-decoration: none;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-            box-shadow: 0 8px 25px rgba(0, 66, 106, 0.35);
-            z-index: 10;
-            display: inline-flex;
+            letter-spacing: 0.22em;
+            color: var(--alaska-green);
+            margin-top: 4px;
+            padding-left: 4px;
+            transform: skewX(6deg);
+        }
+
+        /* --- SUBTLE & CLEAR SCROLL INDICATOR --- */
+        .hero-scroll-indicator {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            color: var(--alaska-blue);
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0.85;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            text-decoration: none;
         }
 
-        body.dark-mode .hero-sub {
-            background: linear-gradient(135deg, #0284c7 0%, var(--alaska-blue) 100%);
-            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.35);
+        body.dark-mode .hero-scroll-indicator {
+            color: #94a3b8;
         }
 
-        .hero-sub:hover {
-            transform: scale(1.05) translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0, 66, 106, 0.45);
+        .hero-scroll-indicator:hover {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-3px);
+        }
+
+        .scroll-mouse-pill {
+            width: 24px;
+            height: 38px;
+            border: 2px solid currentColor;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            padding-top: 6px;
+        }
+
+        .scroll-dot {
+            width: 4px;
+            height: 8px;
+            background-color: var(--alaska-green);
+            border-radius: 4px;
+            animation: scrollPulse 1.8s infinite cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        .scroll-label {
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            opacity: 0.9;
+        }
+
+        @keyframes scrollPulse {
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(10px); opacity: 0.2; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
         /* --- STICKY HEADER & NAV --- */
@@ -243,7 +318,7 @@
             -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid var(--header-border);
             padding: 0 36px;
-            height: 76px;
+            height: 74px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -475,7 +550,7 @@
             background: var(--bg-input);
         }
 
-        /* Filter Chips Scroll Row */
+        /* Filter Chips Scroll Row (Every category has >= 5 planes) */
         .filter-chips-scroll {
             display: flex;
             gap: 8px;
@@ -1157,14 +1232,25 @@
             .nav-link { padding: 6px 12px; font-size: 0.85rem; }
             
             .hero {
-                --plane-zoom: 130%;
-                --plane-nudge-x: 80%;
-                --text-nudge-x: 0px;
+                --plane-zoom: 140%;
+                --plane-nudge-x: 75%;
+                --title-nudge-x: 0px;
+                --title-nudge-y: 0px;
             }
 
-            .livery-text {
-                transform: translateX(0);
+            .hero-title-wrap {
+                transform: none;
+            }
+
+            .brand-script-text {
                 font-size: 2.5rem;
+                flex-direction: column;
+                gap: 0;
+                align-items: center;
+            }
+
+            .alaska-brush-wordmark {
+                align-items: center;
             }
 
             .view-grid { grid-template-columns: 1fr; gap: 20px; }
@@ -1213,14 +1299,24 @@
 <canvas id="confettiCanvas"></canvas>
 <div id="toastBox" class="toast-box"></div>
 
-<!-- HERO SECTION WITH CALIBRATED FUSELAGE ALIGNMENT -->
+<!-- HERO SECTION: CALIBRATED "LIVERY TRACKER" SCRIPT SITUATED ON WHITE FUSELAGE -->
 <div class="hero">
     <div class="hero-title-wrap">
-        <span class="livery-text">Livery Tracker</span>
+        <div class="alaska-brush-wordmark">
+            <div class="brand-script-text">
+                <span class="word-livery">Livery</span>
+                <span class="word-tracker">Tracker</span>
+            </div>
+            <div class="brand-script-tagline">Special Fleet Logbook</div>
+        </div>
     </div>
-    <a href="#main" class="hero-sub" onclick="switchPage('fleet', document.querySelector('.nav-link'))">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
-        <span>Open Logbook</span>
+
+    <!-- SUBTLE & CLEAR SCROLL INDICATOR -->
+    <a href="#main" class="hero-scroll-indicator" onclick="switchPage('fleet', document.querySelector('.nav-link'))">
+        <div class="scroll-mouse-pill">
+            <div class="scroll-dot"></div>
+        </div>
+        <span class="scroll-label">Scroll to explore fleet</span>
     </a>
 </div>
 
@@ -1281,19 +1377,19 @@
             </div>
         </div>
 
-        <!-- Filter Pills Scroll -->
-        <div class="filter-chips-scroll">
-            <button class="filter-pill active" onclick="setFilter('all', this)">All (41)</button>
-            <button class="filter-pill" onclick="setFilter('status:active', this)">🟢 Active Fleet (25)</button>
-            <button class="filter-pill" onclick="setFilter('status:retired', this)">🏛️ Retired Vault (16)</button>
+        <!-- Filter Pills Scroll (All categories have >= 5 planes) -->
+        <div class="filter-chips-scroll" id="filterPillsContainer">
+            <button class="filter-pill active" onclick="setFilter('all', this)">All Special Liveries</button>
+            <button class="filter-pill" onclick="setFilter('status:active', this)">🟢 Active Fleet in Service</button>
+            <button class="filter-pill" onclick="setFilter('status:retired', this)">🏛️ Retired Vault</button>
             <button class="filter-pill" onclick="setFilter('user:seen', this)">👁️ Spotted Only</button>
             <button class="filter-pill" onclick="setFilter('user:ridden', this)">✈️ Ridden Only</button>
-            <button class="filter-pill" onclick="setFilter('cat:Disney', this)">🏰 Disney</button>
-            <button class="filter-pill" onclick="setFilter('cat:Sports', this)">⚾ Sports</button>
-            <button class="filter-pill" onclick="setFilter('cat:Military', this)">🎖️ Military</button>
+            <button class="filter-pill" onclick="setFilter('cat:Disney', this)">🏰 Disney Magic</button>
+            <button class="filter-pill" onclick="setFilter('cat:Sports', this)">⚾ Sports & Teams</button>
+            <button class="filter-pill" onclick="setFilter('cat:Military', this)">🎖️ Military Tribute</button>
             <button class="filter-pill" onclick="setFilter('cat:Art & Culture', this)">🎨 Art & Culture</button>
-            <button class="filter-pill" onclick="setFilter('cat:Retro', this)">📻 Retro</button>
-            <button class="filter-pill" onclick="setFilter('cat:Alliance', this)">🌐 oneworld</button>
+            <button class="filter-pill" onclick="setFilter('cat:Community & Heritage', this)">🤝 Community & Heritage</button>
+            <button class="filter-pill" onclick="setFilter('cat:Alliances & Partner Airlines', this)">🌐 Alliances & Partner Airlines</button>
         </div>
     </div>
 
@@ -1319,7 +1415,7 @@
                 <div class="bar-bg"><div id="bar-disney" class="bar-fill" style="background:var(--alaska-blue)"></div></div>
             </div>
             <div class="progress-container">
-                <div class="progress-label"><span>Sports Collection</span><span id="perc-sports">0%</span></div>
+                <div class="progress-label"><span>Sports & Teams</span><span id="perc-sports">0%</span></div>
                 <div class="bar-bg"><div id="bar-sports" class="bar-fill" style="background:var(--alaska-gold)"></div></div>
             </div>
         </div>
@@ -1348,7 +1444,7 @@
 <div id="page-info" class="page-section">
     <div style="max-width: 900px; margin: 40px auto; line-height: 2;">
         <h2 class="group-header">Our Story</h2>
-        <p>This application documents the artistic heritage of Alaska Airlines. From the iconic Salmon-Thirty-Salmon to collaborations with Disney and local Pacific Northwest sports teams, we track the individual frames that make this fleet unique.</p>
+        <p>This application documents the artistic heritage of Alaska Airlines and partner fleets including Horizon Air and Hawaiian Airlines. From the iconic Salmon-Thirty-Salmon to collaborations with Disney, sports teams, and cultural masters, we track the individual frames that make this fleet unique.</p>
         
         <h2 class="group-header">Live Aircraft Radar Tracking</h2>
         <p>Every aircraft tail number links directly to live flight tracking on <strong>FlightRadar24</strong>. If an aircraft's radar map centers on Jordan, the plane is currently parked or off-radar, but recent flight history is accessible on the left panel.</p>
@@ -1362,7 +1458,7 @@
 <div class="parallax-footer">
     <div class="footer-content">
         <h2>alaska livery tracker</h2>
-        <p style="color:#cbd5e1; font-size:0.95rem; margin-top:8px;">Built for plane spotters, aviation photographers, and frequent flyers.</p>
+        <p style="color:#cbd5e1; font-size:0.95rem; margin-top:8px;">Built for plane spotters, aviation photographers, and frequent flyers across Alaska, Horizon & Hawaiian fleets.</p>
     </div>
 </div>
 
@@ -1390,7 +1486,7 @@
                 <h4>📝 Personal Spotter Log</h4>
                 <div class="spotter-fields">
                     <input type="date" id="modalDate" placeholder="Date Spotted" onchange="saveModalLog()">
-                    <input type="text" id="modalAirport" placeholder="Airport Code (e.g. SEA, ANC)" maxlength="10" oninput="this.value=this.value.toUpperCase()" onchange="saveModalLog()">
+                    <input type="text" id="modalAirport" placeholder="Airport Code (e.g. SEA, ANC, HNL)" maxlength="10" oninput="this.value=this.value.toUpperCase()" onchange="saveModalLog()">
                     <textarea id="modalNotes" placeholder="Personal notes (gate, seat, runway, memory)..." onchange="saveModalLog()"></textarea>
                 </div>
                 <div style="display:flex; gap:10px;">
@@ -1410,56 +1506,67 @@
 
 <script>
     /* ==========================================================================
-       DATA & CONSTANTS (41 SPECIAL LIVERIES)
+       DATASET (CATEGORIES CONSOLIDATED: ALL >= 5 PLANES)
+       Reference: Alaska Airlines Official Fleet & Partner Airlines
        ========================================================================== */
     const aircraftData = [
-        // ACTIVE FLEET
+        // --- 1. DISNEY MAGIC (8 PLANES) ---
         { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N538AS", name: "Star Wars Transport to Disneyland Resort", img: "image/starwars.jpeg", desc: "Debuted in 2022 to celebrate Star Wars: Galaxy's Edge at Disneyland Resort. Features the Millennium Falcon and TIE Fighters battling across a space backdrop." },
         { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N537AS", name: "Disneyland Pixar Pier", img: "image/pixar.jpeg", desc: "Introduced in 2019 showcasing Pixar favorites including Woody, Buzz Lightyear, and Jessie soaring across the fuselage." },
         { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N565AS", name: "Mickey's Toontown at Disneyland Resort", img: "image/toontown.jpeg", desc: "Unveiled in 2023 showcasing Mickey Mouse, Minnie Mouse, Goofy, Donald Duck, and Pluto having fun at Mickey's Toontown." },
         { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N589AS", name: "Toy Story: Friendship and Beyond", img: "image/toystory.jpeg", desc: "Features Sheriff Woody, Buzz Lightyear, and Bo Peep celebrating the Pixar Toy Story franchise." },
         { cat: "Disney", status: "active", type: "Boeing 737-800", tail: "N596AS", name: "Tiana's Bayou Adventure Flyer", img: "image/tiana.jpeg", desc: "Celebrating the opening of Tiana's Bayou Adventure at Disneyland Resort, featuring Princess Tiana and Louis." },
-        { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N559AS", name: "X̱áat Ḵwáani (Salmon People)", img: "image/kwaani.jpeg", desc: "Designed by Lingít artist Crystal Kaakeeyáa Rose Demientieff Worl. Celebrates Northwest Coast Formline art." },
-        { cat: "Military", status: "active", type: "Boeing 737-8 MAX", tail: "N806AK", name: "Honoring Those Who Serve (2024)", img: "image/veterans.jpeg", desc: "Newest patriotic livery on the 737-8 MAX paying tribute to U.S. active military and veterans." },
-        { cat: "Community", status: "active", type: "Boeing 737-800", tail: "N568AS", name: "Employee Powered", img: "image/employees.jpeg", desc: "Covered in the names of over 20,000 Alaska Airlines and Horizon Air employees." },
-        { cat: "Retro", status: "active", type: "Boeing 737-800", tail: "N569AS", name: "Starliner 75 Retrojet", img: "image/retro.jpeg", desc: "Painted in the historic 1970s Alaska Starliner livery with red, gold, and black cheatlines." },
-        { cat: "Military", status: "active", type: "Boeing 737-800", tail: "N523AS", name: "Honoring Those Who Serve", img: "image/honor.jpeg", desc: "Classic patriotic livery with red, white, and blue ribbons honoring veterans and heroes." },
-        { cat: "Military", status: "active", type: "Boeing 737-900ER", tail: "N265AK", name: "Honoring Those Who Serve", img: "image/honor.jpeg", desc: "Carrying the Fallen Soldier crest alongside U.S. Armed Forces emblems." },
-        { cat: "Military", status: "active", type: "Embraer 175", tail: "N651QX", name: "Honoring Those Who Serve (Regional)", img: "image/tribute.jpeg", desc: "Operated by Horizon Air on West Coast regional routes." },
-        { cat: "Military", status: "active", type: "Boeing 737-9 MAX", tail: "N929AK", name: "Honoring Those Who Serve (MAX)", img: "image/honor.jpeg", desc: "Tribute scheme on the modern fuel-efficient Boeing 737-9 MAX." },
+        { cat: "Disney", status: "retired", type: "Boeing 737-800", tail: "N519AS", name: "Incredibles 2", img: "image/incredibles.jpeg", desc: "Featured the Parr superhero family promoting the Disney-Pixar film." },
+        { cat: "Disney", status: "retired", type: "Boeing 737-800", tail: "N570AS", name: "Disneyland Cars Land", img: "image/cars.jpeg", desc: "Celebrated the opening of Cars Land featuring Lightning McQueen and Mater." },
+        { cat: "Disney", status: "retired", type: "Boeing 737-900", tail: "N318AS", name: "We're Going to Disneyland Resort", img: "image/disneyland.jpeg", desc: "The classic first-generation Disney logojet featuring Mickey and Tinker Bell." },
+
+        // --- 2. SPORTS & TEAMS (8 PLANES) ---
         { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N710AL", name: "Seattle Mariners", img: "image/mariners.jpeg", desc: "Official logojet for the Seattle Mariners MLB team with the compass rose emblem." },
         { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N915AK", name: "Seattle Kraken", img: "image/kraken.jpeg", desc: "Celebrating Seattle's NHL franchise with navy, ice blue, and tentacle motifs." },
-        { cat: "Art & Culture", status: "active", type: "Boeing 737-9 MAX", tail: "N932AK", name: "West Coast Wonders (Orcas)", img: "image/orca.jpeg", desc: "Features a majestic pod of orcas swimming across the fuselage." },
         { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N933AK", name: "Seattle Kraken (Hockey Scheme)", img: "image/hockey.jpeg", desc: "Second Seattle Kraken tribute aircraft with player silhouettes." },
         { cat: "Sports", status: "active", type: "Boeing 737-9 MAX", tail: "N936AK", name: "Lou Seal / SF Giants", img: "image/louseal.jpeg", desc: "Features San Francisco Giants mascot Lou Seal and orange-and-black branding." },
-        { cat: "Alliance", status: "active", type: "Boeing 737-900ER", tail: "N486AS", name: "oneworld Alliance", img: "image/oneworld.jpeg", desc: "Celebrates Alaska Airlines joining the global oneworld airline alliance." },
-        { cat: "Alliance", status: "active", type: "Boeing 737-900ER", tail: "N491AS", name: "oneworld Alliance (Second Frame)", img: "image/alliance.jpeg", desc: "Second Boeing 737-900ER wearing the signature oneworld alliance global livery." },
-        { cat: "Community", status: "active", type: "Boeing 737-900ER", tail: "N492AS", name: "UNCF Our Commitment", img: "image/uncf.jpeg", desc: "Partnering with the United Negro College Fund to support historically Black colleges." },
-        { cat: "University", status: "active", type: "Embraer 175", tail: "N661QX", name: "WSU Go Cougs", img: "image/veterans.jpeg", desc: "Horizon Air regional jet in Washington State University crimson and gray." },
-        { cat: "University", status: "active", type: "Embraer 175", tail: "N662QX", name: "UW Go Dawgs", img: "image/veterans.jpeg", desc: "Horizon Air regional jet in University of Washington purple and gold." },
+        { cat: "Sports", status: "retired", type: "Airbus A321neo", tail: "N924VA", name: "SF Giants Logojet", img: "image/giants.jpeg", desc: "Airbus A321neo dedicated to the San Francisco Giants baseball club." },
+        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N280AK", name: "Kevin Durant photo", img: "image/durant.jpeg", desc: "Featured NBA superstar Kevin Durant during his Bay Area championship years." },
+        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N296AK", name: "Russell Wilson CFO", img: "image/wilson.jpeg", desc: "Honoring Seattle Seahawks quarterback Russell Wilson as honorary CFO." },
+        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N453AS", name: "Russell Wilson Champions", img: "image/champions.jpeg", desc: "Commemorated the Seattle Seahawks Super Bowl XLVIII championship season." },
+
+        // --- 3. MILITARY TRIBUTE (5 PLANES) ---
+        { cat: "Military", status: "active", type: "Boeing 737-8 MAX", tail: "N806AK", name: "Honoring Those Who Serve (2024)", img: "image/veterans.jpeg", desc: "Newest patriotic livery on the 737-8 MAX paying tribute to U.S. active military and veterans." },
+        { cat: "Military", status: "active", type: "Boeing 737-800", tail: "N523AS", name: "Honoring Those Who Serve", img: "image/honor.jpeg", desc: "Classic patriotic livery with red, white, and blue ribbons honoring veterans and heroes." },
+        { cat: "Military", status: "active", type: "Boeing 737-900ER", tail: "N265AK", name: "Honoring Those Who Serve", img: "image/honor.jpeg", desc: "Carrying the Fallen Soldier crest alongside U.S. Armed Forces emblems." },
+        { cat: "Military", status: "active", type: "Embraer 175", tail: "N651QX", name: "Honoring Those Who Serve (Horizon)", img: "image/tribute.jpeg", desc: "Operated by Horizon Air on West Coast regional routes." },
+        { cat: "Military", status: "active", type: "Boeing 737-9 MAX", tail: "N929AK", name: "Honoring Those Who Serve (MAX)", img: "image/honor.jpeg", desc: "Tribute scheme on the modern fuel-efficient Boeing 737-9 MAX." },
+
+        // --- 4. ART & CULTURE (7 PLANES) ---
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N559AS", name: "X̱áat Ḵwáani (Salmon People)", img: "image/kwaani.jpeg", desc: "Designed by Lingít artist Crystal Kaakeeyáa Rose Demientieff Worl. Celebrates Northwest Coast Formline art and the vital role of salmon in Alaska Native cultures." },
+        { cat: "Art & Culture", status: "active", type: "Boeing 737-9 MAX", tail: "N932AK", name: "West Coast Wonders (Orcas)", img: "image/orca.jpeg", desc: "Features a majestic pod of orcas swimming across the fuselage, celebrating Pacific waters." },
         { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N562AS", name: "Hawaiian Lei Tail", img: "image/lei.jpeg", desc: "Features a fresh flower lei draped around the iconic Alaska Native tail face." },
         { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N584AS", name: "Hawaiian Lei Tail (Aloha)", img: "image/aloha.jpeg", desc: "Floral garland livery celebrating island culture across Hawaiian flights." },
         { cat: "Art & Culture", status: "active", type: "Boeing 737-800", tail: "N592AS", name: "Hawaiian Lei Tail (Garland)", img: "image/garland.jpeg", desc: "Third variation of the floral lei tail celebrating Alaska's Hawaiian routes." },
-
-        // RETIRED FLEET VAULT
-        { cat: "Community", status: "retired", type: "Airbus A320", tail: "N854VA", name: "Pride in the Skies", img: "image/pride.jpeg", desc: "Virgin America heritage Airbus A320 carrying the rainbow Pride flag." },
-        { cat: "Sports", status: "retired", type: "Airbus A321neo", tail: "N924VA", name: "SF Giants Logojet", img: "image/giants.jpeg", desc: "Airbus A321neo dedicated to the San Francisco Giants baseball club." },
-        { cat: "Alliance", status: "retired", type: "Airbus A321neo", tail: "N926VA", name: "More to Love", img: "image/love.jpeg", desc: "Celebrated the merger between Alaska Airlines and Virgin America." },
-        { cat: "Alliance", status: "retired", type: "Airbus A321neo", tail: "N927VA", name: "More to Love (Merger)", img: "image/merger.jpeg", desc: "Companion 'More to Love' Airbus A321neo celebrating network integration." },
-        { cat: "Retro", status: "retired", type: "Boeing 737-800", tail: "N512AS", name: "Spirit of Seattle / Dreamliner", img: "image/dreamliner.jpeg", desc: "Hybrid paint scheme celebrating the rollout of the Boeing 787 Dreamliner." },
-        { cat: "Disney", status: "retired", type: "Boeing 737-800", tail: "N519AS", name: "Incredibles 2", img: "image/incredibles.jpeg", desc: "Featured the Parr superhero family promoting the Disney-Pixar film." },
-        { cat: "Community", status: "retired", type: "Boeing 737-800", tail: "N548AS", name: "Fly & Ski Snowbird", img: "image/skiing.jpeg", desc: "Promoted Utah ski destinations with Snowbird and Alta winter sports artwork." },
         { cat: "Art & Culture", status: "retired", type: "Boeing 737-800", tail: "N559AS", name: "Salmon Thirty Salmon II", img: "image/salmon.jpeg", desc: "A 129-foot King Salmon meticulously painted across the entire Boeing 737 fuselage." },
         { cat: "Art & Culture", status: "retired", type: "Boeing 737-800", tail: "N560AS", name: "Spirit of the Islands", img: "image/islands.jpeg", desc: "Designed by a Hawaiian high school student in a statewide art contest." },
-        { cat: "Disney", status: "retired", type: "Boeing 737-800", tail: "N570AS", name: "Disneyland Cars Land", img: "image/cars.jpeg", desc: "Celebrated the opening of Cars Land featuring Lightning McQueen and Mater." },
-        { cat: "Community", status: "retired", type: "Boeing 737-9 MAX", tail: "N913AK", name: "The Gift of Travel (Holiday)", img: "image/holiday.jpeg", desc: "Festive holiday-themed livery featuring wrapped gift boxes and snowflakes." },
-        { cat: "Retro", status: "retired", type: "Boeing 737-900ER", tail: "N248AK", name: "Boeing 100 Years Strong", img: "image/boeing.jpeg", desc: "Special centennial livery celebrating Boeing's 100-year aviation milestone." },
-        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N280AK", name: "Kevin Durant photo", img: "image/durant.jpeg", desc: "Featured NBA superstar Kevin Durant during his Bay Area championship years." },
-        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N296AK", name: "Russell Wilson CFO", img: "image/wilson.jpeg", desc: "Honoring Seattle Seahawks quarterback Russell Wilson as honorary CFO." },
-        { cat: "Disney", status: "retired", type: "Boeing 737-900", tail: "N318AS", name: "We're Going to Disneyland Resort", img: "image/disneyland.jpeg", desc: "The classic first-generation Disney logojet featuring Mickey and Tinker Bell." },
-        { cat: "Community", status: "retired", type: "Boeing 737-900ER", tail: "N403AS", name: "Spirit of Education", img: "image/education.jpeg", desc: "Promoted educational excellence and student STEM mentoring." },
-        { cat: "Sports", status: "retired", type: "Boeing 737-900ER", tail: "N453AS", name: "Russell Wilson Champions", img: "image/champions.jpeg", desc: "Commemorated the Seattle Seahawks Super Bowl XLVIII championship season." },
-        { cat: "Alliance", status: "retired", type: "Boeing 737-900ER", tail: "N493AS", name: "More to Love (Virgin America)", img: "image/virgin.jpeg", desc: "Boeing 737-900ER in the transitional 'More to Love' merger livery." }
+
+        // --- 5. COMMUNITY & HERITAGE (11 PLANES) ---
+        { cat: "Community & Heritage", status: "active", type: "Boeing 737-800", tail: "N568AS", name: "Employee Powered", img: "image/employees.jpeg", desc: "Covered in the names of over 20,000 Alaska Airlines and Horizon Air employees." },
+        { cat: "Community & Heritage", status: "active", type: "Boeing 737-900ER", tail: "N492AS", name: "UNCF Our Commitment", img: "image/uncf.jpeg", desc: "Partnering with the United Negro College Fund to support historically Black colleges." },
+        { cat: "Community & Heritage", status: "active", type: "Boeing 737-800", tail: "N569AS", name: "Starliner 75 Retrojet", img: "image/retro.jpeg", desc: "Painted in the historic 1970s Alaska Starliner livery with red, gold, and black cheatlines." },
+        { cat: "Community & Heritage", status: "active", type: "Embraer 175", tail: "N661QX", name: "WSU Go Cougs (Horizon)", img: "image/veterans.jpeg", desc: "Horizon Air regional jet in Washington State University crimson and gray." },
+        { cat: "Community & Heritage", status: "active", type: "Embraer 175", tail: "N662QX", name: "UW Go Dawgs (Horizon)", img: "image/veterans.jpeg", desc: "Horizon Air regional jet in University of Washington purple and gold." },
+        { cat: "Community & Heritage", status: "retired", type: "Airbus A320", tail: "N854VA", name: "Pride in the Skies", img: "image/pride.jpeg", desc: "Virgin America heritage Airbus A320 carrying the rainbow Pride flag." },
+        { cat: "Community & Heritage", status: "retired", type: "Boeing 737-800", tail: "N548AS", name: "Fly & Ski Snowbird", img: "image/skiing.jpeg", desc: "Promoted Utah ski destinations with Snowbird and Alta winter sports artwork." },
+        { cat: "Community & Heritage", status: "retired", type: "Boeing 737-9 MAX", tail: "N913AK", name: "The Gift of Travel (Holiday)", img: "image/holiday.jpeg", desc: "Festive holiday-themed livery featuring wrapped gift boxes and snowflakes." },
+        { cat: "Community & Heritage", status: "retired", type: "Boeing 737-900ER", tail: "N248AK", name: "Boeing 100 Years Strong", img: "image/boeing.jpeg", desc: "Special centennial livery celebrating Boeing's 100-year aviation milestone." },
+        { cat: "Community & Heritage", status: "retired", type: "Boeing 737-800", tail: "N512AS", name: "Spirit of Seattle / Dreamliner", img: "image/dreamliner.jpeg", desc: "Hybrid paint scheme celebrating the rollout of the Boeing 787 Dreamliner." },
+        { cat: "Community & Heritage", status: "retired", type: "Boeing 737-900ER", tail: "N403AS", name: "Spirit of Education", img: "image/education.jpeg", desc: "Promoted educational excellence and student STEM mentoring." },
+
+        // --- 6. ALLIANCES & PARTNER AIRLINES (7 PLANES - INCL. HORIZON & HAWAIIAN) ---
+        { cat: "Alliances & Partner Airlines", status: "active", type: "Boeing 737-900ER", tail: "N486AS", name: "oneworld Alliance", img: "image/oneworld.jpeg", desc: "Celebrates Alaska Airlines joining the global oneworld airline alliance." },
+        { cat: "Alliances & Partner Airlines", status: "active", type: "Boeing 737-900ER", tail: "N491AS", name: "oneworld Alliance (Second Frame)", img: "image/alliance.jpeg", desc: "Second Boeing 737-900ER wearing the signature oneworld alliance global livery." },
+        { cat: "Alliances & Partner Airlines", status: "active", type: "Embraer 175", tail: "N621QX", name: "Horizon Air Retro Meatball Livery", img: "image/retro.jpeg", desc: "Horizon Air vintage retro livery with classic sunset cheatlines and the iconic Horizon meatball emblem." },
+        { cat: "Alliances & Partner Airlines", status: "active", type: "Airbus A330-200", tail: "N380HA", name: "Hawaiian Airlines Pualani Livery", img: "image/aloha.jpeg", desc: "Flagship Hawaiian Airlines livery celebrating the Alaska Air Group & Hawaiian Airlines merger integration." },
+        { cat: "Alliances & Partner Airlines", status: "retired", type: "Airbus A321neo", tail: "N926VA", name: "More to Love", img: "image/love.jpeg", desc: "Celebrated the merger between Alaska Airlines and Virgin America." },
+        { cat: "Alliances & Partner Airlines", status: "retired", type: "Airbus A321neo", tail: "N927VA", name: "More to Love (Merger)", img: "image/merger.jpeg", desc: "Companion 'More to Love' Airbus A321neo celebrating network integration." },
+        { cat: "Alliances & Partner Airlines", status: "retired", type: "Boeing 737-900ER", tail: "N493AS", name: "More to Love (Virgin America)", img: "image/virgin.jpeg", desc: "Boeing 737-900ER in the transitional 'More to Love' merger livery." }
     ];
 
     /* ==========================================================================
@@ -1611,13 +1718,13 @@
         let groups = {};
         list.forEach(p => {
             let k = p[groupKey];
-            if (groupKey === 'status') k = p.status === 'active' ? 'Active Fleet' : 'Retired Vault';
+            if (groupKey === 'status') k = p.status === 'active' ? 'Active Fleet in Service' : 'Retired Fleet Vault';
             if (!groups[k]) groups[k] = [];
             groups[k].push(p);
         });
 
         const keys = Object.keys(groups);
-        if (groupKey === 'status') keys.sort((a,b) => a === 'Active Fleet' ? -1 : 1);
+        if (groupKey === 'status') keys.sort((a,b) => a.includes('Active') ? -1 : 1);
 
         keys.forEach(title => {
             const wrap = document.createElement('div');
@@ -1710,7 +1817,7 @@
             { id: 'military', n: 'Sky Guardian', icon: '🎖️', u: aircraftData.filter(p=>p.cat==='Military'&&JSON.parse(localStorage.getItem(`ak_v23_${p.tail}_${p.name}`)||'{"s":false}').s).length >= 4 },
             { id: 'historian', n: 'Aviation Historian', icon: '🏛️', u: aircraftData.some(p => p.status === 'retired' && JSON.parse(localStorage.getItem(`ak_v23_${p.tail}_${p.name}`) || '{"s":false}').s) },
             { id: 'collector', n: 'Fleet Collector', icon: '🏆', u: seen >= 15 },
-            { id: 'elite', n: 'Elite Tracker', icon: '👑', u: seen >= 30 }
+            { id: 'elite', n: 'Elite Tracker', icon: '👑', u: seen >= 25 }
         ];
 
         document.getElementById('badges-grid').innerHTML = achs.map(a => `
@@ -1733,7 +1840,7 @@
         aircraftData.forEach(p => {
             if (JSON.parse(localStorage.getItem(`ak_v23_${p.tail}_${p.name}`) || '{"s":false}').s) seen++;
         });
-        if (seen === 1 || seen === 15 || seen === 30 || seen === aircraftData.length) {
+        if (seen === 1 || seen === 15 || seen === 25 || seen === aircraftData.length) {
             fireConfetti();
         }
     }
